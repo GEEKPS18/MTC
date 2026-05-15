@@ -78,6 +78,8 @@ model User {
   id        String   @id @default(cuid())
   name      String
   email     String   @unique
+  phone     String?
+  address   String?
   role      UserRole @default(STAFF)
   isActive  Boolean  @default(true)
   isDeleted Boolean  @default(false)

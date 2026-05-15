@@ -101,7 +101,7 @@ export function Header({ title, onMobileMenuOpen }: HeaderProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem asChild>
-              <Link href="/settings" className="flex items-center w-full">
+              <Link href="/profile" className="flex items-center w-full">
                 <User className="h-4 w-4 ml-2" />
                 الملف الشخصي
               </Link>

@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/shared/FormField";
-import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, User, Phone, MapPin } from "lucide-react";
 import Image from "next/image";
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({
+    name: "", email: "", phone: "", address: "", password: "", confirmPassword: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,7 +52,13 @@ export default function RegisterPage() {
         await fetch("/api/users", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: data.user.id, name: form.name, email: form.email }),
+          body: JSON.stringify({
+            id: data.user.id,
+            name: form.name,
+            email: form.email,
+            phone: form.phone || null,
+            address: form.address || null,
+          }),
         });
       }
 
@@ -82,113 +88,83 @@ export default function RegisterPage() {
             </Link>
           </div>
         ) : (
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Logo */}
-          <div className="text-center mb-8">
-            <Image src="/logo-avatar.png" alt="MTC Electronics" width={100} height={100} className="mx-auto mb-3" priority />
-            <h1 className="text-xl font-bold text-[#0b2345]">إنشاء حساب جديد</h1>
-            <p className="text-sm text-[#64748b] mt-1">نظام إدارة الأعمال</p>
-          </div>
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            <div className="text-center mb-6">
+              <Image src="/logo-avatar.png" alt="MTC Electronics" width={90} height={90} className="mx-auto mb-3" priority />
+              <h1 className="text-xl font-bold text-[#0b2345]">إنشاء حساب جديد</h1>
+              <p className="text-sm text-[#64748b] mt-1">نظام إدارة الأعمال</p>
+            </div>
 
-          <form onSubmit={handleRegister} className="space-y-4">
-            <FormField label="الاسم الكامل" htmlFor="name">
-              <div className="relative">
-                <User className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
-                <Input
-                  id="name"
-                  placeholder="محمد أحمد"
-                  value={form.name}
-                  onChange={(e) => set("name", e.target.value)}
-                  className="pr-10"
-                  autoFocus
-                />
-              </div>
-            </FormField>
-
-            <FormField label="البريد الإلكتروني" htmlFor="email">
-              <div className="relative">
-                <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="example@email.com"
-                  value={form.email}
-                  onChange={(e) => set("email", e.target.value)}
-                  className="pr-10"
-                  dir="ltr"
-                  autoComplete="email"
-                />
-              </div>
-            </FormField>
-
-            <FormField label="كلمة المرور" htmlFor="password">
-              <div className="relative">
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="6 أحرف على الأقل"
-                  value={form.password}
-                  onChange={(e) => set("password", e.target.value)}
-                  className="pr-10 pl-10"
-                  dir="ltr"
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#64748b]"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-            </FormField>
-
-            <FormField label="تأكيد كلمة المرور" htmlFor="confirmPassword">
-              <div className="relative">
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
-                <Input
-                  id="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="أعد كتابة كلمة المرور"
-                  value={form.confirmPassword}
-                  onChange={(e) => set("confirmPassword", e.target.value)}
-                  className="pr-10"
-                  dir="ltr"
-                  autoComplete="new-password"
-                />
-              </div>
-            </FormField>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
-                {error}
-              </div>
-            )}
-
-            <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  جاري إنشاء الحساب...
+            <form onSubmit={handleRegister} className="space-y-3">
+              <FormField label="الاسم الكامل" htmlFor="name" required>
+                <div className="relative">
+                  <User className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+                  <Input id="name" placeholder="محمد أحمد" value={form.name} onChange={(e) => set("name", e.target.value)} className="pr-10" autoFocus />
                 </div>
-              ) : (
-                "إنشاء الحساب"
+              </FormField>
+
+              <FormField label="البريد الإلكتروني" htmlFor="email" required>
+                <div className="relative">
+                  <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+                  <Input id="email" type="email" placeholder="example@email.com" value={form.email} onChange={(e) => set("email", e.target.value)} className="pr-10" dir="ltr" autoComplete="email" />
+                </div>
+              </FormField>
+
+              <div className="grid grid-cols-2 gap-3">
+                <FormField label="رقم الهاتف" htmlFor="phone">
+                  <div className="relative">
+                    <Phone className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+                    <Input id="phone" type="tel" placeholder="05XXXXXXXX" value={form.phone} onChange={(e) => set("phone", e.target.value)} className="pr-10" dir="ltr" />
+                  </div>
+                </FormField>
+
+                <FormField label="الموقع / العنوان" htmlFor="address">
+                  <div className="relative">
+                    <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+                    <Input id="address" placeholder="نابلس" value={form.address} onChange={(e) => set("address", e.target.value)} className="pr-10" />
+                  </div>
+                </FormField>
+              </div>
+
+              <FormField label="كلمة المرور" htmlFor="password" required>
+                <div className="relative">
+                  <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+                  <Input id="password" type={showPassword ? "text" : "password"} placeholder="6 أحرف على الأقل" value={form.password} onChange={(e) => set("password", e.target.value)} className="pr-10 pl-10" dir="ltr" autoComplete="new-password" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8] hover:text-[#64748b]">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </FormField>
+
+              <FormField label="تأكيد كلمة المرور" htmlFor="confirmPassword" required>
+                <div className="relative">
+                  <Lock className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#94a3b8]" />
+                  <Input id="confirmPassword" type={showPassword ? "text" : "password"} placeholder="أعد كتابة كلمة المرور" value={form.confirmPassword} onChange={(e) => set("confirmPassword", e.target.value)} className="pr-10" dir="ltr" autoComplete="new-password" />
+                </div>
+              </FormField>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
               )}
-            </Button>
-          </form>
 
-          <p className="text-sm text-center text-[#64748b] mt-6">
-            لديك حساب؟{" "}
-            <Link href="/login" className="text-[#104e98] font-medium hover:underline">
-              تسجيل الدخول
-            </Link>
-          </p>
+              <Button type="submit" className="w-full h-11 text-base" disabled={loading}>
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    جاري إنشاء الحساب...
+                  </div>
+                ) : "إنشاء الحساب"}
+              </Button>
+            </form>
 
-          <p className="text-xs text-[#94a3b8] text-center mt-3">
-            نابلس، فلسطين | 0599880618
-          </p>
-        </div>
+            <p className="text-sm text-center text-[#64748b] mt-4">
+              لديك حساب؟{" "}
+              <Link href="/login" className="text-[#104e98] font-medium hover:underline">تسجيل الدخول</Link>
+            </p>
+            <p className="text-xs text-[#94a3b8] text-center mt-2">نابلس، فلسطين | 0599880618</p>
+          </div>
         )}
       </div>
     </div>

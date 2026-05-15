@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    const { id, name, email } = await req.json();
+    const { id, name, email, phone, address } = await req.json();
 
     if (!id || !name || !email) {
       return NextResponse.json({ error: "البيانات ناقصة" }, { status: 400 });
@@ -11,8 +11,8 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.upsert({
       where: { email },
-      update: { name },
-      create: { id, name, email, role: "STAFF" },
+      update: { name, phone: phone ?? null, address: address ?? null },
+      create: { id, name, email, phone: phone ?? null, address: address ?? null, role: "STAFF" },
     });
 
     return NextResponse.json(user, { status: 201 });
