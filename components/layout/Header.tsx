@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Bell, Menu, LogOut, User, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +13,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface HeaderProps {
   title?: string;
@@ -20,9 +21,21 @@ interface HeaderProps {
   onMobileMenuOpen?: () => void;
 }
 
-export function Header({ title, userName = "المستخدم", onMobileMenuOpen }: HeaderProps) {
+export function Header({ title, onMobileMenuOpen }: HeaderProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [userName, setUserName] = useState("المستخدم");
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      const name =
+        data.user?.user_metadata?.name ||
+        data.user?.email?.split("@")[0] ||
+        "المستخدم";
+      setUserName(name);
+    });
+  }, []);
 
   const initials = userName
     .split(" ")
@@ -58,9 +71,7 @@ export function Header({ title, userName = "المستخدم", onMobileMenuOpen 
 
         {/* Logo on mobile */}
         <div className="lg:hidden flex items-center gap-2">
-          <div className="w-7 h-7 bg-[#104e98] rounded-md flex items-center justify-center">
-            <span className="text-white font-bold text-xs">M</span>
-          </div>
+          <img src="/logo-avatar.png" alt="MTC" className="w-7 h-7 rounded-md object-cover" />
           <span className="font-bold text-[#0b2345] text-sm">MTC Electronics</span>
         </div>
       </div>
@@ -89,9 +100,11 @@ export function Header({ title, userName = "المستخدم", onMobileMenuOpen 
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem>
-              <User className="h-4 w-4 ml-2" />
-              الملف الشخصي
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="flex items-center w-full">
+                <User className="h-4 w-4 ml-2" />
+                الملف الشخصي
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
